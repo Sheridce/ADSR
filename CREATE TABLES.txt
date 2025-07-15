@@ -2,4 +2,4 @@ CREATE TABLE trip ( trip_id SERIAL PRIMARY KEY, angler_id INT REFERENCES angler(
 
 CREATE TABLE fish (trip_id INT REFERENCES trip(trip_id) ON DELETE CASCADE, species text, length text, kept boolean, released boolean);
 
-CREATE TABLE angler ( angler_id SERIAL PRIMARY KEY, email_addr text, name_first text NOT NULL, name_last text NOT NULL);
+CREATE TABLE angler ( angler_id SERIAL PRIMARY KEY, email_addr text NOT NULL, name_first text , name_last text);

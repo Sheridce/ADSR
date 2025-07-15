@@ -8,32 +8,23 @@ function App() {
   const [count, setCount] = useState(0);
   const [array, setArray] = useState([]);
 
-  const fetchAPI= async () => {
-    const response = await axios.get("http://localhost:8080/api")
-    setArray(response.data.fruits)
-    console.log(response.data.fruits) 
-  };
+const sendData = async () => {
+  try{
+    const payload ={ id: 1, species: "Largemouth Bass", length: "14.5 in", kept: false, released: true};
+    const response = await axios .post("http://localhost:8080/api", payload);
+    console.log("Response", response.data);
+  }
+  catch{
+    console.error("Error sending data:", error);
+  }
+}
+return(
+  <div>
+    <h1>Send Data test</h1>
+    <button onClick={sendData}>send to backend</button>
+  </div>
+)
 
-  useEffect(() => {
-    fetchAPI();
-  }, [])
-
-  return (
-    <>
-      <div className="card">
-        {
-          array.map((fruit, index) =>(
-            <div key={index}>
-              <p>
-                {fruit}
-              </p>
-              <br />
-            </div>
-          ))
-        }
-      </div>
-    </>
-  )
 }
 
 export default App
