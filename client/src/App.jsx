@@ -10,7 +10,7 @@ function App() {
 
 const sendData = async () => {
   try{
-    const payload ={ id: 1, species: "Largemouth Bass", length: "14.5 in", kept: false, released: true};
+    const payload ={species: "Smallmouth Bass", length: "10.25 in", kept: false, released: true};
     const response = await axios .post("http://localhost:8080/api", payload);
     console.log("Response", response.data);
   }
