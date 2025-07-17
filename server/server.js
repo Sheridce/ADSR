@@ -26,34 +26,36 @@ app.listen(8080, () => {
 
 app.post("/api", async (req, res) => {
     const {angler, trip, fish} = req.body;
+    const {email_addr, name_first, name_last} = angler;
+    const {trip_date, area_fished, bait_type, fishing_type, fishing_time, target_trout, trout_time, target_bass, basss_time, target_pike, pike_time, target_yp, yp_time, target_wp, wp_time, target_sunfish, sunfish_time, target_bullhead, bullhead_time, no_fish, personal_notes} = req.body.trip;
+    const {species, length, kept, released} = req.body.fish;
     const client = await pool.connect();
+    let anglerID;
     try{
-
         const checkAnglers = await client.query(
-            pool.query (
-                "SELECT id FROM angler WHERE email = $1",
-                [email]
-            )
+                "SELECT angler_id FROM angler WHERE email_addr = $1",
+                [email_addr]
         )
             if (checkAnglers.rows.length > 0) {
-                anglerID = checkAnglers.row[0];
+                anglerID = checkAnglers.rows[0].angler_id;
                 console.log("found angler with id: ", anglerID);
             } else {
                 const anglerResult = await client.query(
-                    "INSERT INTO angler (email, name_first, name_last), VALUES ($1, $2, $3) RETURNING angler_id"
-                    [email, name_first, name_last]
+                    "INSERT INTO angler (email_addr, name_first, name_last) VALUES ($1, $2, $3) RETURNING angler_id",
+                    [email_addr, name_first, name_last]
                 );
+                anglerID = anglerResult.rows[0].angler_id;
             }
-            const anglerID = anglerResult.rows[0].angler_id;
             const tripResult = await client.query(
-                "INSERT INTO trip (anglerID, trip_date, area_fished, bait_type, fishing_type, fishing_time, target_trout, trout_time, target_bass, basss_time, target_pike, pike_time, target_yp, yp_time, target_wp, wp_time, target_sunfish, sunfish_time, target_bullhead, bullhead_time, no_fish, personal_notes) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22) RETURNING trip_id",
+                "INSERT INTO trip (angler_id, trip_date, area_fished, bait_type, fishing_type, fishing_time, target_trout, trout_time, target_bass, bass_time, target_pike, pike_time, target_yp, yp_time, target_wp, wp_time, target_sunfish, sunfish_time, target_bullhead, bullhead_time, no_fish, personal_notes) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22) RETURNING trip_id",
                 [anglerID, trip_date, area_fished, bait_type, fishing_type, fishing_time, target_trout, trout_time, target_bass, basss_time, target_pike, pike_time, target_yp, yp_time, target_wp, wp_time, target_sunfish, sunfish_time, target_bullhead, bullhead_time, no_fish, personal_notes]
             )
             const tripID = tripResult.rows[0].trip_id;
             for (const f of fish){
+                const {species, length, kept, released} = f;
                 await client.query(
-                    "INSERT INTO fish (tripID, species, length, kept, released) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-                    [tripIP, species, length, kept, returned]
+                    "INSERT INTO fish (trip_id, species, length, kept, released) VALUES ($1, $2, $3, $4, $5)",
+                    [tripID, species, length, kept, released]
                 );
             }
             await client.query("COMMIT");
