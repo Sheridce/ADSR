@@ -51,6 +51,104 @@ catch (err){
 
 return (
   <div>
+    <label>
+      Email address: <input type="text" />
+    </label>
+    <label>
+      First name: (optional) <input type="text" />
+    </label>
+    <label>
+      Last name (optional): <input type="text" />
+    </label>
+    <br />
+    <label> 
+      Trip date: <input type="text" />
+    </label>
+    <label >
+      Area fished:
+      <select name="areaFished">
+        <option value="North Basin">North Basin</option>
+        <option value="Narrows">Narrows</option>
+        <option value="South Basin">South Basin</option>
+      </select>
+    </label>
+    <label>
+      Bait type:
+      <select name="baitType">
+        <option value="Artificial">Artificial</option>
+        <option value="Natural">Natural</option>
+      </select>
+    </label>
+    <label>
+      Fishing type:
+      <select name="fishingType">
+        <option value="Boat">Boat</option>
+        <option value="Short">Shore</option>
+        <option value="Ice">Ice</option>
+      </select>
+    </label>
+    <label>
+      Time spent fishing: <input type="text"/>
+    </label>
+    <br />
+    <label>Target Species | </label>
+    <label>Time spent targeting (nearest 1/4th hour) | </label>
+    <label>Target Species | </label>
+    <label>Time spent targeting (nearest 1/4th hour)</label>
+    <br />
+    <label>
+      Lake Trout 
+      <input type= "checkbox" />
+    </label>
+    <label>
+      <input type="text"/>
+    </label>
+    <label>
+      Yellow Perch
+      <input type= "checkbox" />
+    </label>
+    <label>
+      <input type="text"/>
+    </label>
+    <br /><label>
+      Bass 
+      <input type= "checkbox" />
+    </label>
+    <label>
+      <input type="text"/>
+    </label>
+    <label>
+      White Perch 
+      <input type= "checkbox" />
+    </label>
+    <label>
+      <input type="text"/>
+    </label>
+    <br />
+    <label>
+      Northern Pike
+      <input type= "checkbox" />
+    </label>
+    <label>
+      <input type="text"/>
+    </label>
+    <label>
+      Sunfish 
+      <input type= "checkbox" />
+    </label>
+    <label>
+      <input type="text"/>
+    </label>
+    <br />
+    <label>
+      Bullhead
+      <input type= "checkbox" />
+    </label>
+    <label>
+      <input type="text"/>
+    </label>
+    <br />
+    <label> No fish caught <input type="checkbox"/></label> 
     <h1>Send Data Test</h1>
     <button onClick={sendData}>Send to Backend</button>
     <p>{message}</p>
