@@ -27,7 +27,7 @@ app.listen(8080, () => {
 app.post("/api", async (req, res) => {
     const {angler, trip, fish} = req.body;
     const {email_addr, name_first, name_last} = angler;
-    const {trip_date, area_fished, bait_type, fishing_type, time_fishing, target_trout, trout_time, target_bass, bass_time, target_pike, pike_time, target_yp, yp_time, target_wp, wp_time, target_sunfish, sunfish_time, target_bullhead, bullhead_time, no_fish, personal_notes} = req.body.trip;
+    const {num_anglers, trip_date, area_fished, bait_type, fishing_type, time_fishing, target_trout, trout_time, target_bass, bass_time, target_pike, pike_time, target_yp, yp_time, target_wp, wp_time, target_sunfish, sunfish_time, target_bullhead, bullhead_time, no_fish, personal_notes} = req.body.trip;
     const {species, length, kept, released} = req.body.fish;
     const client = await pool.connect();
     let anglerID;
@@ -47,8 +47,8 @@ app.post("/api", async (req, res) => {
                 anglerID = anglerResult.rows[0].angler_id;
             }
             const tripResult = await client.query(
-                "INSERT INTO trip (angler_id, trip_date, area_fished, bait_type, fishing_type, fishing_time, target_trout, trout_time, target_bass, bass_time, target_pike, pike_time, target_yp, yp_time, target_wp, wp_time, target_sunfish, sunfish_time, target_bullhead, bullhead_time, no_fish, personal_notes) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22) RETURNING trip_id",
-                [anglerID, trip_date, area_fished, bait_type, fishing_type, `${time_fishing} hours`, target_trout, `${trout_time} hours`, target_bass, `${bass_time} hours`, target_pike, `${pike_time} hours`, target_yp, `${yp_time} hours`, target_wp, `${wp_time} hours`, target_sunfish, `${sunfish_time} hours`, target_bullhead, `${bullhead_time} hours`, no_fish, personal_notes]
+                "INSERT INTO trip (angler_id, num_anglers, trip_date, area_fished, bait_type, fishing_type, fishing_time, target_trout, trout_time, target_bass, bass_time, target_pike, pike_time, target_yp, yp_time, target_wp, wp_time, target_sunfish, sunfish_time, target_bullhead, bullhead_time, no_fish, personal_notes) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23) RETURNING trip_id",
+                [anglerID, num_anglers, trip_date, area_fished, bait_type, fishing_type, `${time_fishing} hours`, target_trout, `${trout_time} hours`, target_bass, `${bass_time} hours`, target_pike, `${pike_time} hours`, target_yp, `${yp_time} hours`, target_wp, `${wp_time} hours`, target_sunfish, `${sunfish_time} hours`, target_bullhead, `${bullhead_time} hours`, no_fish, personal_notes]
             )
             const tripID = tripResult.rows[0].trip_id;
             for (const f of fish){
