@@ -27,7 +27,7 @@ function App() {
   const [sunfish_time, setSunfish_time] = useState(0);
   const [target_bullhead, setTarget_bullhead] = useState(false);
   const [bullhead_time, setBullhead_time] = useState(0);
-  const [no_fish, setNo_fish] = useState(false);
+  const [no_fish, setNo_fish] = useState(true);
   const [fishList, setFishList] = useState([
     {species: "Lake Trout", length: 0, kept: false, released: false}
   ]);
@@ -48,11 +48,22 @@ function App() {
   const validateEmail = (email) => {
     return /\S+@\S+\.\S+/.test(email);
   };
+  useEffect(() => {
+    const today = new Date().toISOString().split("T")[0];
+    setTrip_date(today);
+  }, []);
+  useEffect(() => {
+    if (no_fish) {
+      setFishList([]); // Clear the list
+    }
+  }, [no_fish]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
 
 
 
 const sendData = async() => {
+  setIsSubmitting(true);
   try{ 
   await axios.post("http://localhost:8080/api", {
     angler: {
@@ -85,21 +96,26 @@ const sendData = async() => {
       personal_notes: personal_notes
     },
     fish: fishList
-  })
+  });
+  setMessage("Submitted Successfully");
 }
 
 catch (err){
   console.error("Error sending data:", err);
+  setMessage("Error submitting form");
+}
+finally{
+  setIsSubmitting(false);
 }
 };
 
 const validate = () =>{
   if (!email_addr || !validateEmail(email_addr)){
-    alert:("Please enter a valid email address");
+    alert("Please enter a valid email address");
     return;
   }
-  if (!trip_date){
-    alert:("Please select a trip date");
+  if (!name_first || !name_last){
+    alert("Please enter a first and last name");
     return;
   }
 
@@ -113,10 +129,10 @@ return (
         Email address: <input type="text" id="email-addr" value={email_addr} onChange={e => setEmail(e.target.value)}/>
       </label>
       <label>
-        First name: (optional) <input type="text" id="first-name" value={name_first} onChange={e =>setName_first(e.target.value)}/>
+        First name: <input type="text" id="first-name" value={name_first} onChange={e =>setName_first(e.target.value)}/>
       </label>
       <label>
-        Last name (optional): <input type="text" id="last-name"value={name_last} onChange={e =>setName_last(e.target.value)}/>
+        Last name: <input type="text" id="last-name"value={name_last} onChange={e =>setName_last(e.target.value)}/>
       </label>
     </div>
 
@@ -172,20 +188,20 @@ return (
 
       <div className="grid-4col-cell">
         <label>
-          <input type="number" id="trout-time" min="0" step="0.25" value={trout_time} onChange={e => setTrout_time(e.target.value)}/>
+          <input type="number" id="trout-time" min="0" step="0.25" value={trout_time} onChange={e => setTrout_time(e.target.value)} disabled={!target_trout}/>
         </label>
       </div>
 
     <div className="grid-4col-cell">
       <label>
         Yellow Perch
-      < input type= "checkbox" id="target-yp" checked={target_yp} onChange={e => setTarget_yp(e.target.checked)} />
-        </label>
+        <input type= "checkbox" id="target-yp" checked={target_yp} onChange={e => setTarget_yp(e.target.checked)} />
+      </label>
     </div>
     
     <div className="grid-4col-cell">
       <label>
-        <input type="number" id="yp-time" min="0" step="0.25" value={yp_time} onChange={e => setYp_time(e.target.value)}/>
+        <input type="number" id="yp-time" min="0" step="0.25" value={yp_time} onChange={e => setYp_time(e.target.value)} disabled={!target_yp}/>
       </label>
     </div>
     
@@ -198,7 +214,7 @@ return (
     
     <div className="grid-4col-cell">
       <label>
-        <input type="number" id="bass-time" min="0" step="0.25" value={bass_time} onChange={e => setBass_time(e.target.value)}/>
+        <input type="number" id="bass-time" min="0" step="0.25" value={bass_time} onChange={e => setBass_time(e.target.value)} disabled={!target_bass}/>
       </label>
     </div>
     
@@ -211,7 +227,7 @@ return (
     
     <div className="grid-4col-cell">
       <label>
-        <input type="number" id="wp-time" min="0" step="0.25" value={wp_time} onChange={e => setWp_time(e.target.value)}/>
+        <input type="number" id="wp-time" min="0" step="0.25" value={wp_time} onChange={e => setWp_time(e.target.value)} disabled={!target_wp}/>
       </label>
     </div>
     
@@ -224,7 +240,7 @@ return (
     
     <div className="grid-4col-cell">
       <label>
-        <input type="number" id="pike-time" min="0" step="0.25" value={pike_time} onChange={e => setPike_time(e.target.value)}/>
+        <input type="number" id="pike-time" min="0" step="0.25" value={pike_time} onChange={e => setPike_time(e.target.value)} disabled={!target_pike}/>
       </label>
     </div>
     
@@ -237,7 +253,7 @@ return (
     
     <div className="grid-4col-cell">
       <label>
-        <input type="number" id="sunfish-time" min="0" step="0.25" value={sunfish_time} onChange={e => setSunfish_time(e.target.value)}/>
+        <input type="number" id="sunfish-time" min="0" step="0.25" value={sunfish_time} onChange={e => setSunfish_time(e.target.value)} disabled={!target_sunfish}/>
       </label>
     </div>
     
@@ -250,7 +266,7 @@ return (
     
     <div className="grid-4col-cell">
       <label>
-        <input type="number" id="bullhead-time" min="0" step="0.25" value={bullhead_time} onChange={e => setBullhead_time(e.target.value)}/>
+        <input type="number" id="bullhead-time" min="0" step="0.25" value={bullhead_time} onChange={e => setBullhead_time(e.target.value)} disabled={!target_bullhead}/>
       </label>
     </div>
     <div className="grid-4col-cell">
@@ -258,7 +274,8 @@ return (
     </div>
     </div>
     </div>
-    <h2>Fish caught</h2>
+    <h2>Record of all fish caught today -- kept or released:</h2>
+    <button onClick={addFish} disabled={no_fish}>Add another fish</button>
     <div className="scroll-container">
     {fishList.map ((fish, index) => (
       <div key = "index" className="fish-entry-wrapper">
@@ -286,12 +303,11 @@ return (
       </div>
     ))}
     </div>
-    <button onClick={addFish}>Add another fish</button>
     <label>
       Personal notes (optional)
       <textarea name="Personal Notes" cols="30" rows="10" value={personal_notes} onChange={e => setPersonal_notes(e.target.value)}></textarea>
     </label>
-    <button onClick={validate}>Submit trip</button>
+    <button onClick={validate} disabled={isSubmitting}>{isSubmitting ? "Submitting..." : "Submit Trip"}</button>
     <p>{message}</p>
   </div>
 );
