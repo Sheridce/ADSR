@@ -7,6 +7,7 @@ function App() {
   const [email_addr, setEmail] = useState("");
   const [name_first, setName_first] = useState("");
   const [name_last, setName_last] = useState("");
+  const [num_anglers, setNum_anglers] = useState(1);
   const [trip_date, setTrip_date] = useState("");
   const [area_fished, setArea_fished] = useState("North Basin");
   const [bait_type, setBait_type] = useState("Artificial");
@@ -26,7 +27,7 @@ function App() {
   const [sunfish_time, setSunfish_time] = useState(0);
   const [target_bullhead, setTarget_bullhead] = useState(false);
   const [bullhead_time, setBullhead_time] = useState(0);
-  const [no_fish, setNo_fish] = useState(false);
+  const [no_fish, setNo_fish] = useState(true);
   const [fishList, setFishList] = useState([
     {species: "Lake Trout", length: 0, kept: false, released: false}
   ]);
@@ -44,10 +45,25 @@ function App() {
     setFishList(updatedFish);
   };
   const [personal_notes, setPersonal_notes] = useState("");
+  const validateEmail = (email) => {
+    return /\S+@\S+\.\S+/.test(email);
+  };
+  useEffect(() => {
+    const today = new Date().toISOString().split("T")[0];
+    setTrip_date(today);
+  }, []);
+  useEffect(() => {
+    if (no_fish) {
+      setFishList([]); // Clear the list
+    }
+  }, [no_fish]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
 
 
 
 const sendData = async() => {
+  setIsSubmitting(true);
   try{ 
   await axios.post("http://localhost:8080/api", {
     angler: {
@@ -56,6 +72,7 @@ const sendData = async() => {
       name_last: name_last
     },
     trip: {
+      num_anglers: num_anglers,
       trip_date: trip_date,
       area_fished: area_fished,
       bait_type: bait_type,
@@ -79,153 +96,218 @@ const sendData = async() => {
       personal_notes: personal_notes
     },
     fish: fishList
-  })
+  });
+  setMessage("Submitted Successfully");
 }
+
 catch (err){
   console.error("Error sending data:", err);
+  setMessage("Error submitting form");
 }
+finally{
+  setIsSubmitting(false);
+}
+};
+
+const validate = () =>{
+  if (!email_addr || !validateEmail(email_addr)){
+    alert("Please enter a valid email address");
+    return;
+  }
+  if (!name_first || !name_last){
+    alert("Please enter a first and last name");
+    return;
+  }
+
+  sendData();
 };
 
 return (
   <div>
-    <label>
-      Email address: <input type="text" value={email_addr} onChange={e => setEmail(e.target.value)}/>
-    </label>
-    <label>
-      First name: (optional) <input type="text" value={name_first} onChange={e =>setName_first(e.target.value)}/>
-    </label>
-    <label>
-      Last name (optional): <input type="text" value={name_last} onChange={e =>setName_last(e.target.value)}/>
-    </label>
-    <br />
-    <label> 
-      Trip date: <input type="date" value={trip_date} onChange={e => setTrip_date(e.target.value)}/>
-    </label>
-    <label >
-      Area fished:
-      <select name="areaFished" value={area_fished} onChange={e=> setArea_fished(e.target.value)}>
-        <option value="North Basin">North Basin</option>
-        <option value="Narrows">Narrows</option>
-        <option value="South Basin">South Basin</option>
-      </select>
-    </label>
-    <label>
-      Bait type:
-      <select name="baitType" value={bait_type} onChange={e => setBait_type(e.target.value)}>
-        <option value="Artificial">Artificial</option>
-        <option value="Natural">Natural</option>
-      </select>
-    </label>
-    <label>
-      Fishing type:
-      <select name="fishingType" value={fishing_type} onChange={e => setFishing_type(e.target.value)}>
-        <option value="Boat">Boat</option>
-        <option value="Short">Shore</option>
-        <option value="Ice">Ice</option>
-      </select>
-    </label>
-    <label>
-      Time spent fishing: <input type="number" min="0" step="0.25" value={time_fishing} onChange={e => setTime_fishing(e.target.value)}/>
-    </label>
-    <br />
-    <label>Target Species | </label>
-    <label>Time spent targeting (nearest 1/4th hour) | </label>
-    <label>Target Species | </label>
-    <label>Time spent targeting (nearest 1/4th hour)</label>
-    <br />
-    <label>
-      Lake Trout 
-      <input type= "checkbox" checked={target_trout} onChange={e => setTarget_trout(e.target.checked)}/>
-    </label>
-    <label>
-      <input type="number" min="0" step="0.25" value={trout_time} onChange={e => setTrout_time(e.target.value)}/>
-    </label>
-    <label>
-      Yellow Perch
-      <input type= "checkbox" checked={target_yp} onChange={e => setTarget_yp(e.target.checked)} />
-    </label>
-    <label>
-    <input type="number" min="0" step="0.25" value={yp_time} onChange={e => setYp_time(e.target.value)}/>
-    </label>
-    <br /><label>
-      Bass 
-      <input type= "checkbox" checked={target_bass} onChange={e => setTarget_bass(e.target.checked)}/>
-    </label>
-    <label>
-    <input type="number" min="0" step="0.25" value={bass_time} onChange={e => setBass_time(e.target.value)}/>
-    </label>
-    <label>
-      White Perch 
-      <input type= "checkbox" checked={target_wp} onChange={e => setTarget_wp(e.target.checked)} />
-    </label>
-    <label>
-    <input type="number" min="0" step="0.25" value={wp_time} onChange={e => setWp_time(e.target.value)}/>
-    </label>
-    <br />
-    <label>
-      Northern Pike
-      <input type= "checkbox" checked={target_pike} onChange={e => setTarget_pike(e.target.checked)}/>
-    </label>
-    <label>
-    <input type="number" min="0" step="0.25" value={pike_time} onChange={e => setPike_time(e.target.value)}/>
-    </label>
-    <label>
-      Sunfish 
-      <input type= "checkbox" checked={target_sunfish} onChange={e => setTarget_sunfish(e.target.checked)}/>
-    </label>
-    <label>
-    <input type="number" min="0" step="0.25" value={sunfish_time} onChange={e => setSunfish_time(e.target.value)}/>
-    </label>
-    <br />
-    <label>
-      Bullhead
-      <input type= "checkbox" checked={target_bullhead} onChange={e => setTarget_bullhead(e.target.checked)}/>
-    </label>
-    <label>
-    <input type="number" min="0" step="0.25" value={bullhead_time} onChange={e => setBullhead_time(e.target.value)}/>
-    </label>
-    <br />
-    <label> No fish caught <input type="checkbox" checked={no_fish} onChange={e => setNo_fish(e.target.checked)}/></label> 
-    <br />
-    <h2>Fish caught</h2>
-    {fishList.map ((fish, index) => (
-      <div key = "index">
-        <label>
-        Species: 
-        <select value={fish.species} onChange={e => updateFish(index, "species", e.target.value)}>
-          <option value="Lake Trout">Lake Trout</option>
-          <option value="Smallmouth Bass">Smallmouth Bass</option>
-          <option value="Largemouth Bass">Largemouth Bass</option>
-          <option value="Northern Pike">Northern Pike</option>
-          <option value="Yellow Perch">Yellow Perch</option>
-          <option value="White Perch">White Perch</option>
-          <option value="Sunfish">Sunfish</option>
-          <option value="Bullhead">Bullhead</option>
+    <div className="form-row">
+      <label>
+        Email address: <input type="text" id="email-addr" value={email_addr} onChange={e => setEmail(e.target.value)}/>
+      </label>
+      <label>
+        First name: <input type="text" id="first-name" value={name_first} onChange={e =>setName_first(e.target.value)}/>
+      </label>
+      <label>
+        Last name: <input type="text" id="last-name"value={name_last} onChange={e =>setName_last(e.target.value)}/>
+      </label>
+    </div>
+
+    <div className="form-row">
+      <label>
+        How many anglers does this trip cover?: <input type="number" id="num_anglers" value={num_anglers} onChange={e =>setNum_anglers(e.target.value)}/>
+      </label>
+      <label> 
+        Trip date: <input type="date" id="trip-date" value={trip_date} onChange={e => setTrip_date(e.target.value)}/>
+      </label>
+      <label >
+        Area fished:
+        <select name="areaFished" id="area-fished" value={area_fished} onChange={e=> setArea_fished(e.target.value)}>
+          <option value="North Basin">North Basin</option>
+          <option value="Narrows">Narrows</option>
+          <option value="South Basin">South Basin</option>
+        </select>
+      </label>
+    </div>
+
+    <div className="form-row">
+      <label>
+        Bait type: <select name="baitType" id="bait-type" value={bait_type} onChange={e => setBait_type(e.target.value)}>
+          <option value="Artificial">Artificial</option>
+          <option value="Natural">Natural</option>
         </select>
       </label>
       <label>
-        Length: 
-        <input type="number" min = "0" step="0.25" value={fish.length} onChange={(e => updateFish(index, "length", e.target.value))}/>
+        Fishing type: <select name="fishingType" id="fishing-type" value={fishing_type} onChange={e => setFishing_type(e.target.value)}>
+          <option value="Boat">Boat</option>
+          <option value="Short">Shore</option>
+          <option value="Ice">Ice</option>
+        </select>
       </label>
       <label>
-        Kept?
-        <input type="checkbox" checked={fish.kept} onChange={e => updateFish(index, "kept", e.target.checked)}/>
+        Time spent fishing: 
+        <input type="number" min="0" step="0.25" id="time-spent" value={time_fishing} onChange={e => setTime_fishing(e.target.value)}/>
       </label>
+    </div>
+
+    <div className="scroll-container">
+    <div className="grid-4col-wrapper">
+      <div className="grid-4col-header">Target species </div>
+      <div className="grid-4col-header">Time spent targeting </div>
+      <div className="grid-4col-header">Target species </div>
+      <div className="grid-4col-header">Time spent targeting </div>
+      <div className="grid-4col-cell">
+        <label>
+        Lake Trout 
+        <input type="checkbox" id="target-trout" checked={target_trout} onChange={e => setTarget_trout(e.target.checked)}/>
+        </label>
+      </div>
+
+      <div className="grid-4col-cell">
+        <label>
+          <input type="number" id="trout-time" min="0" step="0.25" value={trout_time} onChange={e => setTrout_time(e.target.value)} disabled={!target_trout}/>
+        </label>
+      </div>
+
+    <div className="grid-4col-cell">
       <label>
-        Released?
-        <input type="checkbox" checked={fish.released} onChange={e => updateFish(index, "released", e.target.checked)}/>
+        Yellow Perch
+        <input type= "checkbox" id="target-yp" checked={target_yp} onChange={e => setTarget_yp(e.target.checked)} />
       </label>
-      <button onClick={() => deleteFish(index)} style={{marginLeft: "10px"}}>Remove</button>
+    </div>
+    
+    <div className="grid-4col-cell">
+      <label>
+        <input type="number" id="yp-time" min="0" step="0.25" value={yp_time} onChange={e => setYp_time(e.target.value)} disabled={!target_yp}/>
+      </label>
+    </div>
+    
+    <div className="grid-4col-cell">
+      <label>
+        Bass 
+          <input type="checkbox" id="target-bass" checked={target_bass} onChange={e => setTarget_bass(e.target.checked)}/>
+      </label>
+    </div>
+    
+    <div className="grid-4col-cell">
+      <label>
+        <input type="number" id="bass-time" min="0" step="0.25" value={bass_time} onChange={e => setBass_time(e.target.value)} disabled={!target_bass}/>
+      </label>
+    </div>
+    
+    <div className="grid-4col-cell">
+      <label>
+        White Perch 
+        <input type="checkbox" id="target-wp" checked={target_wp} onChange={e => setTarget_wp(e.target.checked)} />
+      </label>
+    </div>
+    
+    <div className="grid-4col-cell">
+      <label>
+        <input type="number" id="wp-time" min="0" step="0.25" value={wp_time} onChange={e => setWp_time(e.target.value)} disabled={!target_wp}/>
+      </label>
+    </div>
+    
+    <div className="grid-4col-cell">
+      <label>
+        Northern Pike
+          <input type="checkbox" id="target-pike" checked={target_pike} onChange={e => setTarget_pike(e.target.checked)}/>
+      </label>
+    </div>
+    
+    <div className="grid-4col-cell">
+      <label>
+        <input type="number" id="pike-time" min="0" step="0.25" value={pike_time} onChange={e => setPike_time(e.target.value)} disabled={!target_pike}/>
+      </label>
+    </div>
+    
+    <div className="grid-4col-cell">
+      <label>
+        Sunfish 
+          <input type="checkbox" id="target-sunfish" checked={target_sunfish} onChange={e => setTarget_sunfish(e.target.checked)}/>
+      </label>
+    </div>
+    
+    <div className="grid-4col-cell">
+      <label>
+        <input type="number" id="sunfish-time" min="0" step="0.25" value={sunfish_time} onChange={e => setSunfish_time(e.target.value)} disabled={!target_sunfish}/>
+      </label>
+    </div>
+    
+    <div className="grid-4col-cell">
+      <label>
+        Bullhead
+          <input type="checkbox" id="target-bullhead" checked={target_bullhead} onChange={e => setTarget_bullhead(e.target.checked)}/>
+      </label>
+    </div>
+    
+    <div className="grid-4col-cell">
+      <label>
+        <input type="number" id="bullhead-time" min="0" step="0.25" value={bullhead_time} onChange={e => setBullhead_time(e.target.value)} disabled={!target_bullhead}/>
+      </label>
+    </div>
+    <div className="grid-4col-cell">
+      <label> No fish caught <input type="checkbox" id="no-fish" checked={no_fish} onChange={e => setNo_fish(e.target.checked)}/></label> 
+    </div>
+    </div>
+    </div>
+    <h2>Record of all fish caught today -- kept or released:</h2>
+    <button onClick={addFish} disabled={no_fish}>Add another fish</button>
+    <div className="scroll-container">
+    {fishList.map ((fish, index) => (
+      <div key = "index" className="fish-entry-wrapper">
+        <div className="fish-entry-header">Species: </div>
+        <div className="fish-entry-header">Length (Nearest 1/4th inch)</div>
+        <div className="fish-entry-header">Kept</div>
+        <div className="fish-entry-header">Released</div>
+        <div className="fish-entry-header">Remove fish</div>
+        <div className="fish-entry-cell">
+          <select value={fish.species} onChange={e => updateFish(index, "species", e.target.value)}>
+            <option value="Lake Trout">Lake Trout</option>
+            <option value="Smallmouth Bass">Smallmouth Bass</option>
+            <option value="Largemouth Bass">Largemouth Bass</option>
+            <option value="Northern Pike">Northern Pike</option>
+            <option value="Yellow Perch">Yellow Perch</option>
+            <option value="White Perch">White Perch</option>
+            <option value="Sunfish">Sunfish</option>
+            <option value="Bullhead">Bullhead</option>
+          </select>
+        </div>
+        <div className="fish-entry-cell"><input type="number" min = "0" step="0.25" value={fish.length} onChange={(e => updateFish(index, "length", e.target.value))}/></div>
+        <div className="fish-entry-cell"><input type="checkbox" checked={fish.kept} onChange={e => updateFish(index, "kept", e.target.checked)}/></div>
+        <div className="fish-entry-cell"><input type="checkbox" checked={fish.released} onChange={e => updateFish(index, "released", e.target.checked)}/></div>
+        <button className="fish-entry-remove" onClick={() => deleteFish(index)} style={{marginLeft: "10px"}}> X </button>
       </div>
     ))}
-    <button onClick={addFish}>Add another fish</button>
-    <br />
+    </div>
     <label>
       Personal notes (optional)
-      <input type="text" value={personal_notes} onChange={e => setPersonal_notes(e.target.value)} />
+      <textarea name="Personal Notes" cols="30" rows="10" value={personal_notes} onChange={e => setPersonal_notes(e.target.value)}></textarea>
     </label>
-    <h1>Send Data Test</h1>
-    <button onClick={sendData}>Send to Backend</button>
+    <button onClick={validate} disabled={isSubmitting}>{isSubmitting ? "Submitting..." : "Submit Trip"}</button>
     <p>{message}</p>
   </div>
 );
