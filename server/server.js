@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const corsOptions = {
-    origin: ["http://localhost"]
+    origin: ["http://157.230.210.174"]
 };
 require('@dotenvx/dotenvx').config()
 const Pool = require('pg').Pool;
@@ -20,7 +20,7 @@ app.use(express.json());
 
 
 
-app.listen(8080, () => {
+app.listen(8080, '0.0.0.0', () => {
     console.log("server started on port 8080");
 })
 
